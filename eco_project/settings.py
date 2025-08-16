@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'category',
     'store',
     'cart.apps.CartConfig',  # Replace 'cart' with this
+    'orders',
 ]
 
 MIDDLEWARE = [
