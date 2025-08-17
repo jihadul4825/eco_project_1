@@ -47,14 +47,12 @@
                   <div class="col">
                     <div class="input-group input-spinner">
                       <div class="input-group-prepend">
-                        <a
-                          href="{% url 'remove_cart' cart_item.product.id cart_item.id %}"
-                          class="btn btn-light"
-                          type="button"
-                          id="button-plus"
-                        >
-                          <i class="fa fa-minus"></i>
-                        </a>
+                        <form action="{% url 'remove_cart' cart_item.product.id cart_item.id %}" method="POST">
+                          {% csrf_token %} 
+                          <button class="btn btn-light" type="submit" id="button-plus">
+                            <i class="fa fa-minus"></i>
+                          </button>
+                        </form>
                       </div>
                       <input
                         type="text"
