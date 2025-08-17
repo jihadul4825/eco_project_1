@@ -64,19 +64,23 @@
               </div>
               <hr />
               {% if single_product.stock <= 0 %}
-              <h5 class="text-danger">Out of Stock</h5>
+                <h5 class="text-danger">Out of Stock</h5>
+
               {% elif in_cart %}
-              <p>Item Already added to cart</p>
-                <a class="btn btn-warning" href="{% url 'cart' %}">
-                <span class="text">View Cart</span>
-                <i class="fas fa-shopping-cart"></i>
-              </a>
+                <p class="text-success">Item already added to cart</p>
+                <a href="{% url 'cart' %}" class="btn btn-warning">
+                  <span>View Cart</span>
+                  <i class="fas fa-shopping-cart"></i>
+                </a>
+
               {% else %}
-              <button type="submit" class="btn btn-primary">
-                <span class="text">Add to Cart</span>
-                <i class="fas fa-shopping-cart"></i>
-              </button>
+                <p><strong class="text-success">In Stock</strong></p>
+                <button type="submit" class="btn btn-primary">
+                  <span>Add to Cart</span>
+                  <i class="fas fa-shopping-cart"></i>
+                </button>
               {% endif %}
+
             </article>
             <!-- product-info-aside .// -->
           </form>
