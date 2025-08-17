@@ -1,15 +1,27 @@
 from django.shortcuts import render, redirect
-from .models import Order,OrderProduct, Payment
-from cart.models import Cart, CartItem
-from store.models import Product
-from category.models import Category
+from django.http import HttpResponse, JsonResponse
+
+from cart.models import CartItem
 from .forms import OrderForm
+from accounts.models import Account
+from .models import Order, Payment, OrderProduct
+from store.models import Product
 
+from .ssl import sslcommerz_payment_gateway
 
-from django.contrib.auth.models import User
+import json 
+import datetime
+
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from decimal import Decimal
+from django.conf import settings
+from django.urls import reverse
+
+from django.views.generic import View, TemplateView, DetailView
+from django.contrib import messages, auth
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from datetime import datetime
 
 
 def place_order(request, total=0, quantity=0):
