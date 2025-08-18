@@ -130,7 +130,7 @@ def custom_logout(request):
     return redirect('login')
 
 
-def forgotPassword(request):
+def forgotPassword(request):   # step 1 for password reset
     if request.method == 'POST':
         email = request.POST['email']
         if Account.objects.filter(email=email).exists():
@@ -157,7 +157,23 @@ def forgotPassword(request):
     return render(request, 'accounts/forgotPassword.html')
 
 
-def resetPassword(request):
+def resetpassword_validate(request, uid64, token):   # step 2 for password reset
+    try:
+        uid = urlsafe_base64_decode(uid64).decode()
+        user = Account._default_manager.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, Account.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        request.session['uid'] = uid  # Store UID for use in reset_password view
+        messages.success(request, 'Please reset your password')
+        return redirect('resetPassword')  # This should be your password reset page
+    else:
+        messages.error(request, 'This link has expired or is invalid.')
+        return redirect('login')
+
+
+def resetPassword(request):   # step 3 for password reset
     if request.method == 'POST':
         password = request.POST['password']
         confirm_password = request.POST['confirm_password']
@@ -185,19 +201,4 @@ def resetPassword(request):
     return render(request, 'accounts/resetPassword.html')
 
 
-
-def resetpassword_validate(request, uid64, token):
-    try:
-        uid = urlsafe_base64_decode(uid64).decode()
-        user = Account._default_manager.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, Account.DoesNotExist):
-        user = None
-
-    if user is not None and default_token_generator.check_token(user, token):
-        request.session['uid'] = uid  # Store UID for use in reset_password view
-        messages.success(request, 'Please reset your password')
-        return redirect('resetPassword')  # This should be your password reset page
-    else:
-        messages.error(request, 'This link has expired or is invalid.')
-        return redirect('login')
 
