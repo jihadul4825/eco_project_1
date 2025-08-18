@@ -20,17 +20,21 @@ class CartItem(models.Model):
     is_active = models.BooleanField(default=True)
     
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'product'],
-                condition=models.Q(user__isnull=True),
-                name='unique_user_product'
-            ),
-            models.UniqueConstraint(
-                fields=['cart', 'product'],
-                condition=models.Q(cart__isnull=True),
-                name='unique_cart_product'
-            )
+        # constraints = [
+        #     models.UniqueConstraint(
+        #         fields=['user', 'product'],
+        #         condition=models.Q(user__isnull=True),
+        #         name='unique_user_product'
+        #     ),
+        #     models.UniqueConstraint(
+        #         fields=['cart', 'product'],
+        #         condition=models.Q(cart__isnull=True),
+        #         name='unique_cart_product'
+        #     )
+        # ]
+        unique_together = [
+            ('user', 'product'),
+            ('cart', 'product'),
         ]
     
     def sub_total(self):
