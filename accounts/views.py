@@ -1,13 +1,12 @@
 from django.shortcuts import render, redirect
 from .forms import RegistrationForm
 from .models import Account
-from cart.views import _cart_id
 from cart.models import Cart, CartItem
 from cart.utils import transfer_cart
+from orders.models import Order, OrderProduct, Payment
 
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
 
 # verification email
 from django.urls import reverse
@@ -100,9 +99,15 @@ def activate(request, uidb64, token):
         return redirect('register')
         
         
-@login_required(login_url='login')
+@login_required
 def dashboard(request):
-    return render(request, 'accounts/dashboard.html')
+    # Use select_related and prefetch_related to optimize queries
+    orders = Order.objects.filter(user=request.user, is_ordered=True).select_related('payment').prefetch_related('order_products__product').order_by('-created_at')
+    
+    context = {
+        'orders': orders,
+    }
+    return render(request, 'accounts/dashboard.html', context)
 
 
 
@@ -111,6 +116,7 @@ def logout(request):
     return redirect('login')
 
 
+@login_required
 def custom_logout(request):
     # Preserve cart ID before logout
     cart_id = request.session.session_key

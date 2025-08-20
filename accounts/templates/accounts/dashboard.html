@@ -1,37 +1,85 @@
-<!-- accounts/templates/accounts/dashboard.html -->
-
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
-{% block title %}Dashboard{% endblock %}
-
 {% block content %}
-  <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <h1>Dashboard</h1>
-        <p>Welcome, {{ user.first_name }} {{ user.last_name }}!</p>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-4">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Orders</h5>
-            <p class="card-text">View your orders here.</p>
-            <a href="" class="btn btn-primary">View Orders</a>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Cart</h5>
-            <p class="card-text">View your cart here.</p>
-            <a href="{% url 'cart' %}" class="btn btn-primary">View Cart</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-{% endblock content %}
+<section class="section-conten padding-y bg">
+<div class="container">
+	<div class="row">
+	<aside class="col-md-3">
+		<!--   SIDEBAR   -->
+		<ul class="list-group">
+			<a class="list-group-item active" href="{% url 'dashboard' %}"> My order history </a>
+			<a class="list-group-item" href="#"> Transactions </a>
+			<a class="list-group-item" href="#"> Return and refunds </a>
+			<a class="list-group-item" href="#">Settings </a>
+			<a class="list-group-item" href="#"> My Selling Items </a>
+			<a class="list-group-item" href="#"> Received orders </a>
+		</ul>
+		<br>
+		<a class="btn btn-light btn-block" href="{% url 'logout' %}"> <i class="fa fa-power-off"></i> <span class="text">Log out</span> </a> 
+		<!--   SIDEBAR .//END   -->
+	</aside>
+	<main class="col-md-9">
+		{% if orders %}
+			{% for order in orders %}
+			<article class="card">
+			<header class="card-header">
+				<strong class="d-inline-block mr-3">Order ID: {{ order.order_number }}</strong>
+				<span>Order Date: {{ order.created_at|date:"d M Y" }}</span>
+			</header>
+			<div class="card-body">
+				<div class="row"> 
+					<div class="col-md-8">
+						<h6 class="text-muted">Delivery to</h6>
+						<p>{{ order.full_name }} <br>  
+						Phone: {{ order.phone }} Email: {{ order.email }} <br>
+						Location: {{ order.full_address }}, {{ order.city }}, {{ order.state }}, {{ order.country }} <br> 
+						</p>
+					</div>
+					<div class="col-md-4">
+						<h6 class="text-muted">Payment</h6>
+						{% if order.payment %}
+							<span class="text-success">
+								<i class="fab fa-lg fa-cc-{{ order.payment.payment_method|lower }}"></i>
+								{{ order.payment.payment_method }} **** {{ order.payment.payment_id|slice:"-4:" }}
+							</span>
+							<p>Subtotal: ${{ order.order_total|floatformat:2 }} <br>
+							 Tax: ${{ order.tax|floatformat:2 }} <br> 
+							 <span class="b">Total: ${{ order.order_total|add:order.tax|floatformat:2 }}</span>
+							</p>
+						{% else %}
+							<p>Payment information not available</p>
+						{% endif %}
+					</div>
+				</div> <!-- row.// -->
+			</div> <!-- card-body .// -->
+			<div class="table-responsive">
+			<table class="table table-hover">
+				{% for order_product in order.order_products.all %}
+				<tr>
+					<td width="65">
+						<img src="{{ order_product.product.images.url }}" class="img-xs border">
+					</td>
+					<td> 
+						<p class="title mb-0">{{ order_product.product.product_name }}</p>
+						<var class="price text-muted">USD {{ order_product.product_price }}</var>
+					</td>
+					<td> Quantity: {{ order_product.quantity }} </td>
+					<td> Total: ${{ order_product.product_price|floatformat:2 }} </td>
+				</tr>
+				{% endfor %}
+			</table>
+			</div> <!-- table-responsive .end// -->
+			</article> <!-- order-group.// --> 
+			<br>
+			{% endfor %}
+		{% else %}
+			<div class="alert alert-info" role="alert">
+				You have not placed any orders yet.
+			</div>
+		{% endif %}
+	</main>
+</div> <!-- row.// -->
+</div>
+</section>
+{% endblock %}

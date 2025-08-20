@@ -5,13 +5,14 @@
 <section class="section-content padding-y bg">
   <div class="container">
     <div class="row">
+
       <aside class="col-lg-8">
         <div class="card">
           <div class="card-header bg-primary text-white">
             <h4 class="mb-0">Billing Details</h4>
           </div>
           <div class="card-body">
-            <form action="{% url 'checkout' %}" method="POST" id="checkout-form">
+            <form action="{% url 'place_order' %}" method="POST" id="place-order-form">
               {% csrf_token %}
               <div class="form-row">
                 <div class="col form-group">
@@ -143,7 +144,7 @@
                       <small class="text-muted">${{ cart_item.product.price }} each</small>
                     </div>
                   </td>
-                </tr>
+                </tr> 
                 {% endfor %}
               </tbody>
             </table>
@@ -167,8 +168,8 @@
                 height="26"
               />
             </p>
-            <a href="#" class="btn btn-primary btn-block">Place Order</a>
-            
+            <!-- <a href="{% url 'place_order' %}" class="btn btn-primary btn-block">Place Order</a>
+             -->
             <a href="{% url 'store' %}" class="btn btn-light btn-block"
               >Continue Shopping</a>
           </div>

@@ -6,7 +6,7 @@
       <div class="row align-items-center">
         <div class="col-lg-2 col-md-3 col-6">
           <a href="{% url 'home' %}" class="brand-wrap">
-            <h3>DjangoMart</h3>
+            <img src="{% static 'images/logo2.png'%}" alt="Invoice logo" style="max-height: 50px; position: relative; right: 50px;">
           </a>
           <!-- brand-wrap.// -->
         </div>
@@ -79,7 +79,7 @@
               </div>
             </div>
             {% endif %}
-            <a href="" class="widget-header pl-3 ml-3">
+            <a href="{% url 'cart' %}" class="widget-header pl-3 ml-3">
               <div class="icon icon-sm rounded-circle border">
                 <i class="fa fa-shopping-cart"></i>
               </div>
