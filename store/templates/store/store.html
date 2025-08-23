@@ -9,6 +9,9 @@
     {% endif %}
   </div>
 </section> -->
+
+
+
 <!-- ========================= SECTION INTRO END// ========================= -->
 
 <!-- ========================= SECTION CONTENT ========================= -->
@@ -18,7 +21,7 @@
       <aside class="col-md-3">
         <div class="card">
           <article class="filter-group">
-            <header class="card-header">
+            <!-- <header class="card-header">
               <a
                 href="#"
                 data-toggle="collapse"
@@ -29,7 +32,32 @@
                 <i class="icon-control fa fa-chevron-down"></i>
                 <h6 class="title">Categories</h6>
               </a>
-            </header>
+            </header> -->
+            <header class="card-header">
+              <div class="form-inline">
+                  <span class="mr-md-auto">
+                      {% if keyword %}
+                          <b>{{ p_count }}</b> search results for "{{ keyword }}"
+                      {% else %}
+                          <b>{{ p_count }}</b> items found
+                      {% endif %}
+                  </span>
+              </div>
+              <div>
+                <a
+                href="#"
+                data-toggle="collapse"
+                data-target="#collapse_1"
+                aria-expanded="true"
+                class=""
+              >
+                <i class="icon-control fa fa-chevron-down"></i>
+                <h6 class="title">Categories</h6>
+              </a>
+              </div>
+              
+          </header>
+
             <div class="filter-content collapse show" id="collapse_1" >
               <div class="card-body">
                 <ul class="list-menu">
@@ -141,14 +169,39 @@
       </aside>
       <!-- col.// -->
       <main class="col-md-9">
-        <header class="border-bottom mb-4 pb-3">
+        <!-- <header class="border-bottom mb-4 pb-3">
           <div class="form-inline">
             <span class="mr-md-auto"
               ><b>{{ p_count }}</b> items found
             </span>
           </div>
-        </header>
+        </header> -->
         <!-- sect-heading -->
+
+          <header class="card-header">
+            <div class="form-inline">
+                <span class="mr-md-auto">
+                      {% if keyword %}
+                          <b>{{ p_count }}</b> search results for "{{ keyword }}"
+                      {% else %}
+                          <b>{{ p_count }}</b> items found
+                      {% endif %}
+                  </span>
+              </div>
+              <div>
+                <a
+                href="#"
+                data-toggle="collapse"
+                data-target="#collapse_1"
+                aria-expanded="true"
+                class=""
+              >
+                <i class="icon-control fa fa-chevron-down"></i>
+                <h6 class="title">Categories</h6>
+              </a>
+              </div>
+              
+          </header>
 
         <div class="row">
           {% if products %} {% for product in products %}
@@ -194,7 +247,7 @@
             <li class="page-item">
               <a
                 class="page-link"
-                href="?page={{products.previous_page_number}}"
+                href="?page={{products.previous_page_number}}{% if request.GET.keyword %}&keyword={{request.GET.keyword}}{% endif %}"
                 >Previous</a
               >
             </li>
@@ -210,11 +263,12 @@
             </li>
             {% else %}
             <li class="page-item">
-              <a class="page-link" href="?page={{i}}">{{i}}</a>
+              <a class="page-link" href="?page={{i}}{% if request.GET.keyword %}&keyword={{request.GET.keyword}}{% endif %}">{{i}}</a>
             </li>
-            {% endif %} {% endfor %} {% if products.has_next %}
+            {% endif %} {% endfor %} 
+            {% if products.has_next %}
             <li class="page-item">
-              <a class="page-link" href="?page={{products.next_page_number}}"
+              <a class="page-link" href="?page={{products.next_page_number}}{% if request.GET.keyword %}&keyword={{request.GET.keyword}}{% endif %}"
                 >Next</a
               >
             </li>
