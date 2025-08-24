@@ -1,4 +1,6 @@
-{% extends 'base.html' %} {% load static %} {% block content %}
+{% extends 'base.html' %} 
+{% load static %} 
+{% block content %}
 
 <section class="section-content padding-y bg">
   <div class="container">
@@ -9,75 +11,139 @@
             <div class="img-big-wrap">
               <a href="#"><img src="{{ single_product.images.url }}" /></a>
             </div>
-            <!-- img-big-wrap.// -->
           </article>
-          <!-- gallery-wrap .end// -->
         </aside>
         <main class="col-md-6 border-left">
           <form action="{% url 'add_cart' single_product.id %}" method="POST">
             {% csrf_token %}
             <article class="content-body">
               <h2 class="title">{{ single_product.product_name }}</h2>
+              
+              <!-- Rating Display -->
               <div class="rating-star">
                 <span>
-                  <i class="fa fa-star{% if single_product.averageReview < 0.5 %}-o{% elif single_product.averageReview >= 0.5 and single_product.averageReview < 1 %}-half-o {% endif %}"
-                    aria-hidden="true"></i>
-                  <i class="fa fa-star{% if single_product.averageReview < 1.5 %}-o{% elif single_product.averageReview >= 1.5 and single_product.averageReview < 2 %}-half-o {% endif %}"
-                    aria-hidden="true"></i>
-                  <i class="fa fa-star{% if single_product.averageReview < 2.5 %}-o{% elif single_product.averageReview >= 2.5 and single_product.averageReview < 3 %}-half-o {% endif %}"
-                    aria-hidden="true"></i>
-                  <i class="fa fa-star{% if single_product.averageReview < 3.5 %}-o{% elif single_product.averageReview >= 3.5 and single_product.averageReview < 4 %}-half-o {% endif %}"
-                    aria-hidden="true"></i>
-                  <i class="fa fa-star{% if single_product.averageReview < 4.5 %}-o{% elif single_product.averageReview >= 4.5 and single_product.averageReview < 5 %}-half-o {% endif %}"
-                    aria-hidden="true"></i>
+                  {% with avg_rating=average_rating %}
+                    <i class="fa fa-star{% if avg_rating < 0.5 %}-o{% elif avg_rating >= 0.5 and avg_rating < 1 %}-half-o {% endif %}"
+                      aria-hidden="true"></i>
+                    <i class="fa fa-star{% if avg_rating < 1.5 %}-o{% elif avg_rating >= 1.5 and avg_rating < 2 %}-half-o {% endif %}"
+                      aria-hidden="true"></i>
+                    <i class="fa fa-star{% if avg_rating < 2.5 %}-o{% elif avg_rating >= 2.5 and avg_rating < 3 %}-half-o {% endif %}"
+                      aria-hidden="true"></i>
+                    <i class="fa fa-star{% if avg_rating < 3.5 %}-o{% elif avg_rating >= 3.5 and avg_rating < 4 %}-half-o {% endif %}"
+                      aria-hidden="true"></i>
+                    <i class="fa fa-star{% if avg_rating < 4.5 %}-o{% elif avg_rating >= 4.5 and avg_rating < 5 %}-half-o {% endif %}"
+                      aria-hidden="true"></i>
+                  {% endwith %}
+                </span>
+                <span class="text-muted ml-2">
+                  ({{ review_count }} reviews)
                 </span>
               </div>
 
               <div class="mb-3">
-                <var class="price h4">$ {{single_product.price}}</var>
+                <var class="price h4">$ {{ single_product.price }}</var>
               </div>
 
               <p>{{ single_product.description }}</p>
 
               <hr />
-              <div class="row">
-                <div class="item-option-select">
-                  <h6>Choose Color</h6>
-
-                </div>
-              </div>
-              <div class="row">
-                <div class="item-option-select">
-                  <h6>Select Size</h6>
-
-                </div>
-              </div>
+              <!-- Your existing color and size selection code -->
               <hr />
-              {% if single_product.stock <= 0 %} <h5 class="text-danger">Out of Stock</h5>
+              
+              {% if single_product.stock <= 0 %} 
+                <h5 class="text-danger">Out of Stock</h5>
 
-                {% elif in_cart %}
+              {% elif in_cart %}
                 <p class="text-success">Item already added to cart</p>
                 <a href="{% url 'cart' %}" class="btn btn-warning">
                   <span>View Cart</span>
                   <i class="fas fa-shopping-cart"></i>
                 </a>
-
-                {% else %}
+              {% else %}
                 <p><strong class="text-success">In Stock</strong></p>
                 <button type="submit" class="btn btn-primary">
                   <span>Add to Cart</span>
                   <i class="fas fa-shopping-cart"></i>
                 </button>
-                {% endif %}
-
+              {% endif %}
             </article>
-            <!-- product-info-aside .// -->
           </form>
         </main>
-        <!-- col.// -->
       </div>
-      <!-- row.// -->
     </div>
+    
+    <!-- Reviews Section -->
+    <div class="card mt-4">
+      <div class="card-body">
+        <h3>Customer Reviews</h3>
+        
+        <!-- Display existing reviews -->
+        {% for review in reviews %}
+        <div class="review-item mb-3 border-bottom pb-3">
+          <div class="d-flex justify-content-between">
+            <h5>{{ review.user.first_name }} {{ review.user.last_name }}</h5>
+            <div class="rating">
+              {% for i in "12345" %}
+                {% if forloop.counter <= review.rating %}
+                  <i class="fa fa-star text-warning"></i>
+                {% else %}
+                  <i class="fa fa-star-o text-warning"></i>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          {% if review.subject %}
+            <h6 class="mt-2">{{ review.subject }}</h6>
+          {% endif %}
+          <p class="mb-1">{{ review.review }}</p>
+          <small class="text-muted">Posted on {{ review.created_at|date:"M d, Y" }}</small>
+        </div>
+        {% empty %}
+        <p class="text-muted">No reviews yet.</p>
+        {% endfor %}
+        
+        <!-- Review form for eligible users -->
+        {% if can_review %}
+        <div class="review-form mt-4">
+          <h4>Write a Review</h4>
+          <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="id_subject">Subject (optional)</label>
+              <input type="text" name="subject" class="form-control" id="id_subject" placeholder="Enter a subject">
+            </div>
+            <div class="form-group">
+              <label for="id_review">Review</label>
+              <textarea name="review" class="form-control" id="id_review" rows="3" placeholder="Share your experience with this product"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="id_rating">Rating</label>
+              <select name="rating" class="form-control" id="id_rating" required>
+                <option value="" selected disabled>Select a rating</option>
+                <option value="1">1 Star - Poor</option>
+                <option value="2">2 Stars - Fair</option>
+                <option value="3">3 Stars - Good</option>
+                <option value="4">4 Stars - Very Good</option>
+                <option value="5">5 Stars - Excellent</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Review</button>
+          </form>
+        </div>
+        {% elif user.is_authenticated %}
+          {% if not has_ordered %}
+            <p class="text-muted mt-3">You need to purchase this product to leave a review.</p>
+          {% elif has_reviewed %}
+            <p class="text-muted mt-3">You have already reviewed this product.</p>
+          {% endif %}
+        {% else %}
+          <p class="text-muted mt-3">Please <a href="{% url 'login' %}">login</a> to leave a review.</p>
+        {% endif %}
+      </div>
+    </div>
+    <!-- End Reviews Section -->
+    
   </div>
+</section>
 
-    {% endblock %}
+{% endblock %}

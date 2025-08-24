@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Product 
 from category.models import Category
 from cart.models import CartItem
+from .forms import ReviewForm
+from .review_utils import ReviewStatus, submit_review
 
 from cart.views import _cart_id
 
@@ -15,7 +17,7 @@ from django.core.paginator import Paginator
 
 
 def store(request, category_slug=None):
-    # categories = None
+    categories = None
     products = None
 
     if category_slug != None:
@@ -30,8 +32,8 @@ def store(request, category_slug=None):
         product_count = products.count()
     else:
         # products = Product.objects.all().filter(is_available=True).order_by('id')
-        products = Product.objects.select_related().filter(is_available=True).order_by('id')
-        
+        # avoid N+1 problem for products
+        products = Product.objects.select_related('category').filter(is_available=True).order_by('id')
         paginator = Paginator(products, 3)
         page = request.GET.get('page')
         paged_products = paginator.get_page(page)
@@ -45,20 +47,68 @@ def store(request, category_slug=None):
     return render(request, 'store/store.html',context)
 
 
-def product_detail(request, category_slug, product_slug):
-    try:
-        # single_product = Product.objects.get(category__slug=category_slug, slug=product_slug)
-        single_product = Product.objects.select_related('category').get(category__slug=category_slug, slug=product_slug)
-        # in_cart = CartItem.objects.filter(cart__cart_id=_cart_id(request), product=single_product).exists()
-        in_cart = CartItem.objects.prefetch_related('product', 'cart').filter(cart__cart_id=_cart_id(request), product=single_product).exists()
-    except Exception as e:
-        raise e
+# def product_detail(request, category_slug, product_slug):
+#     try:
+#         # single_product = Product.objects.get(category__slug=category_slug, slug=product_slug)
+#         single_product = Product.objects.select_related('category').get(category__slug=category_slug, slug=product_slug)
+#         # in_cart = CartItem.objects.filter(cart__cart_id=_cart_id(request), product=single_product).exists()
+#         in_cart = CartItem.objects.prefetch_related('product', 'cart').filter(cart__cart_id=_cart_id(request), product=single_product).exists()
+#     except Exception as e:
+#         raise e
     
+#     context = {
+#         'single_product': single_product,
+#         'in_cart': in_cart,
+#     }
+#     return render(request, 'store/product_details.html', context)
+
+def product_detail(request, category_slug, product_slug):
+    # product = get_object_or_404(
+    #     Product.objects.select_related('category'),
+    #     category__slug = category_slug,
+    #     slug = product_slug                        
+    # )
+    product = Product.objects.select_related('category').get(category__slug = category_slug, slug = product_slug)
+    
+    # in_cart = CartItem.objects.prefetch_related('cart').filter(cart__cart_id=_cart_id(request), product=product).exists()
+    
+    in_cart = CartItem.objects.select_related('cart').filter(cart__cart_id=_cart_id(request), product=product).exists()
+    
+    # Get reviews with users (solves N+1)
+    reviews = product.get_reviews_with_users()
+    
+    # Check if user can review
+    review_status = ReviewStatus(request.user, product)
+    
+    
+    # Handle form submission
+    if request.method == 'POST' and request.user.is_authenticated:
+        form = ReviewForm(request.POST)
+        success, message = submit_review(request, product, form)
+
+        if success:
+           # Refresh the page to show the new review
+           return redirect('product_detail', category_slug=product.category.slug, product_slug=product.slug)
+        else:
+            messages.error(request, message)
+    
+    else:
+        form = ReviewForm()
+
     context = {
-        'single_product': single_product,
+        'single_product': product,
+        'reviews': reviews,
+        'form': form,
         'in_cart': in_cart,
+        'can_review': review_status.can_review,
+        'has_ordered': review_status.has_ordered,
+        'has_reviewed': review_status.has_reviewed,
+        'average_rating': product.get_average_rating(),
+        'review_count': product.get_review_count(),
     }
     return render(request, 'store/product_details.html', context)
+    
+
 
 
 def search(request):

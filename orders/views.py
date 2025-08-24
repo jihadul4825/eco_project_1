@@ -43,7 +43,7 @@ def success_view(request):
     order.save()
     
     # Move cart items to order products
-    cart_items = CartItem.objects.filter(user=user)
+    cart_items = CartItem.objects.select_related('product').filter(user=user)
     for item in cart_items:
         OrderProduct.objects.create(
             order=order,
@@ -54,6 +54,7 @@ def success_view(request):
             product_price=item.product.price,
             ordered=True
         )
+    
         # Reduce stock
         item.product.stock -= item.quantity
         item.product.save()
@@ -111,7 +112,7 @@ def place_order(request):
     current_user = request.user
     
     #if the cart count is less than or equal to 0, then redirect back to store
-    cart_items = CartItem.objects.filter(user=current_user)
+    cart_items = CartItem.objects.select_related('product').filter(user=current_user)
     
     if cart_items.count() < 1:
         return redirect('store')

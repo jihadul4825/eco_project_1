@@ -18,33 +18,28 @@ class Product(models.Model):
     created_date    = models.DateTimeField(auto_now_add=True)
     modified_date   = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return self.product_name
 
     def get_url(self):
         return reverse('product_detail', args=[self.category.slug, self.slug])
     
-    def average_rating(self):
-        reviews = ReviewRating.objects.filter(product=self, status=True).aggregate(average=models.Avg('rating'))
-        avg = 0
-        if reviews['average'] is not None:
-            avg = round(reviews['average'], 1)
-        return avg
+    def get_reviews_with_users(self):
+        #Get all reviews for this product with user data (solves N+1)
+        return self.reviewrating_set.select_related('user').filter(status=True)
     
-    def review_count(self):
-        # Use aggregation to count reviews in a single query
+    
+    def get_average_rating(self):
+        # Get average rating with a single query
+        from django.db.models import Avg
+        result = self.reviewrating_set.filter(status=True).aggregate(avg_rating=Avg('rating'))
+        return result['avg_rating'] or 0
+    
+    def get_review_count(self):
+        # Get review count with a single query
         return self.reviewrating_set.filter(status=True).count()
     
-    # Add a class method to get products with their ratings precalculated
-    @staticmethod
-    def get_products_with_ratings(cls, queryset=None):
-        if queryset is None:
-            queryset = cls.objects.select_related('reviewrating').only('reviewrating__rating')
-        
-        return queryset.annotate(
-            average_rating=Avg('reviewrating__rating', filter=models.Q(reviewrating__status=True)),
-            review_count=Count('reviewrating', filter=models.Q(reviewrating__status=True))
-        )
+    def __str__(self):
+        return self.product_name
+    
         
     
     
