@@ -1,7 +1,9 @@
 from django.db import models
+from django.db.models import Avg, Count
 from category.models import Category
 from django.urls import reverse
 from django.core.validators import MinValueValidator, MaxValueValidator
+from accounts.models import Account
 # Create your models here.
 
 class Product(models.Model):
@@ -21,3 +23,43 @@ class Product(models.Model):
 
     def get_url(self):
         return reverse('product_detail', args=[self.category.slug, self.slug])
+    
+    def average_rating(self):
+        reviews = ReviewRating.objects.filter(product=self, status=True).aggregate(average=models.Avg('rating'))
+        avg = 0
+        if reviews['average'] is not None:
+            avg = round(reviews['average'], 1)
+        return avg
+    
+    def review_count(self):
+        # Use aggregation to count reviews in a single query
+        return self.reviewrating_set.filter(status=True).count()
+    
+    # Add a class method to get products with their ratings precalculated
+    @staticmethod
+    def get_products_with_ratings(cls, queryset=None):
+        if queryset is None:
+            queryset = cls.objects.select_related('reviewrating').only('reviewrating__rating')
+        
+        return queryset.annotate(
+            average_rating=Avg('reviewrating__rating', filter=models.Q(reviewrating__status=True)),
+            review_count=Count('reviewrating', filter=models.Q(reviewrating__status=True))
+        )
+        
+    
+    
+class ReviewRating(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey(Account, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=100, blank=True)
+    review = models.TextField(max_length=500, blank=True)
+    rating = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(5)])
+    ip = models.CharField(max_length=20, blank=True)
+    status = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.subject
+    
+    
