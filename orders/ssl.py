@@ -80,8 +80,6 @@ def sslcommerz_payment_gateway(request, order_id, user_id, grand_total):
         'store_pass': gateway_auth_details.store_pass,
         'issandbox': True
     }
-
-    sslcommerz = SSLCOMMERZ(settings)
     
     # Get the order to access shipping information
     order = get_object_or_404(Order, id=order_id)
@@ -90,6 +88,8 @@ def sslcommerz_payment_gateway(request, order_id, user_id, grand_total):
     success_url = request.build_absolute_uri(reverse('success'))
     fail_url = request.build_absolute_uri(reverse('fail'))
     cancel_url = request.build_absolute_uri(reverse('cancel'))
+    
+    sslcommerz = SSLCOMMERZ(settings)
     
     post_body = {
         'total_amount': grand_total,
