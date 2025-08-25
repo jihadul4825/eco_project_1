@@ -19,8 +19,7 @@ class ReviewStatus:
     def check_ordered(self):
         if not self.user.is_authenticated:
             return False
-        return OrderProduct.objects.filter(user=self.user, product=self.product, ordered=True).exists()
-
+        return OrderProduct.objects.select_related('product').filter(user=self.user, product=self.product, ordered=True).exists()
     def check_reviewed(self):
         if not self.user.is_authenticated:
             return False

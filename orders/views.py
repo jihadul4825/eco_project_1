@@ -20,7 +20,7 @@ from .ssl import sslcommerz_payment_gateway
 @transaction.atomic
 def success_view(request):
     data = request.POST
-    print('data--------', data)
+    # print('data--------', data)
      # Extract values
     order_id = data.get('value_a')
     user_id = data.get('value_b')

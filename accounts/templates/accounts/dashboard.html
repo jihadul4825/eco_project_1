@@ -66,6 +66,7 @@
 					</td>
 					<td> Quantity: {{ order_product.quantity }} </td>
 					<td> Total: ${{ order_product.product_price|floatformat:2 }} </td>
+					<td>Review Product: <a class="btn btn-gray btn-sm" href="{% url 'product_detail' order_product.product.category.slug order_product.product.slug %}">Please Review This Product</a></td>
 				</tr>
 				{% endfor %}
 			</table>

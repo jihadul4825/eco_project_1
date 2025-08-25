@@ -103,7 +103,6 @@ def activate(request, uidb64, token):
 def dashboard(request):
     # Use select_related and prefetch_related to optimize queries
     orders = Order.objects.filter(user=request.user, is_ordered=True).select_related('payment').prefetch_related('order_products__product').order_by('-created_at')
-    
     context = {
         'orders': orders,
     }
@@ -161,6 +160,33 @@ def forgotPassword(request):   # step 1 for password reset
             messages.error(request, 'Account does not exist!')
             return redirect('forgotPassword')
     return render(request, 'accounts/forgotPassword.html')
+
+
+# def forgotPassword(request):
+#     if request.method == 'POST':
+#         email = request.POST['email']
+#         try:
+#             user = Account.objects.get(email__exact=email)
+#             # Reset password email
+#             current_site = get_current_site(request)
+#             mail_subject = 'Reset Your Password'
+#             message = render_to_string('accounts/reset_password_email.html', {
+#                 'user': user,
+#                 'domain': current_site,
+#                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+#                 'token': default_token_generator.make_token(user),
+#                 'protocol': 'https' if request.is_secure() else 'http',
+#             })
+#             send_email = EmailMessage(mail_subject, message, to=[email])
+#             send_email.send()
+
+#             messages.success(request, 'Password reset email has been sent to your email address.')
+#         except Account.DoesNotExist:
+#             messages.error(request, 'Account does not exist!')
+#         return redirect('forgotPassword')
+
+#     return render(request, 'accounts/forgotPassword.html')
+
 
 
 def resetpassword_validate(request, uid64, token):   # step 2 for password reset
