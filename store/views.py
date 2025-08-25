@@ -84,6 +84,7 @@ def store(request, category_slug=None):
         'p_count': product_count,
     }
     
+    
     # Add price filters to context if the exist
     if min_price:
         context['min_price'] = min_price
