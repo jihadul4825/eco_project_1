@@ -36,22 +36,23 @@
         
         <a href="{% url 'store' %}" class="btn btn-outline-info">Store</a>
         <div class="col-lg col-md-6 col-sm-12 col">
-          <form action="" class="search" method="GET">
-            <div class="input-group w-100">
-              <input
-                type="text"
-                class="form-control"
-                style="width: 60%"
-                placeholder="Search"
-                name="keyword"
-              />
-
-              <div class="input-group-append">
-                <button class="btn btn-success" type="submit">
-                  <i class="fa fa-search"></i>
-                </button>
+<!-- navbar.html -->
+          <form action="{% url 'store' %}" class="search" method="GET">
+              <div class="input-group w-100">
+                  <input
+                      type="text"
+                      class="form-control"
+                      style="width: 60%"
+                      placeholder="Search"
+                      name="keyword"
+                      value="{{ request.GET.keyword }}"
+                  />
+                  <div class="input-group-append">
+                      <button class="btn btn-success" type="submit">
+                          <i class="fa fa-search"></i>
+                      </button>
+                  </div>
               </div>
-            </div>
           </form>
           <!-- search-wrap .end// -->
         </div>

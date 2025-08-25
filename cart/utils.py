@@ -13,12 +13,12 @@ def _cart_id(request):
 
 def transfer_cart(request, user):
     try:
-        cart = Cart.objects.get(cart_id=_cart_id(request))
-        cart_items = CartItem.objects.filter(cart=cart)
+        # cart = Cart.objects.get(cart_id=_cart_id(request))
+        cart_items = CartItem.objects.select_related('cart', 'product').filter(cart__cart_id=_cart_id(request), is_active=True)
         
         for item in cart_items:
             # Check for existing items
-            existing_items = CartItem.objects.filter(
+            existing_items = CartItem.objects.select_related('product').filter(
                 user=user, 
                 product=item.product,
                 is_active=True
@@ -37,7 +37,7 @@ def transfer_cart(request, user):
                 item.save()
         
         # Delete the anonymous cart
-        cart.delete()
+        cart_items.delete()
         return True
     except Cart.DoesNotExist:
         return False
