@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -131,6 +132,11 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+
+
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -145,18 +151,20 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
     messages.SUCCESS: 'success',
 }
-# SMTP Configuration
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_HOST_USER = 'jihad4825@gmail.com'
-# EMAIL_HOST_PASSWORD = 'oabulgjvikjpzfaj'
-# EMAIL_USE_TLS = True
-# EMAIL_USE_SSL = False
+# SMTP Configuration for development
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
-EMAIL_HOST_USER = 'e488668547c9bf'
-EMAIL_HOST_PASSWORD = 'ce26b3c6f530ca'
-EMAIL_PORT = 2525
-EMAIL_USE_TLS = True
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+# EMAIL_HOST_USER = 'e488668547c9bf'
+# EMAIL_HOST_PASSWORD = 'ce26b3c6f530ca'
+# EMAIL_PORT = 2525
+# EMAIL_USE_TLS = True
+
+
+# SMTP Configuration for production
+
+EMAIL_BACKEND = 'django_mailjet.backends.MailjetBackend'
+
+MAILJET_API_KEY = '0354e37044bc331fdbbdda6b375973d0'
+MAILJET_API_SECRET = 'a396810254066ce13b678ff6202da677'
+DEFAULT_FROM_EMAIL = 'jihadul4825@gmail.com'

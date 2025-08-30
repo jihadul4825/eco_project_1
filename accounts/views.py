@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import RegistrationForm
+from .forms import RegistrationForm, UserProfileForm
 from .models import Account
 from cart.models import Cart, CartItem
 from cart.utils import transfer_cart
@@ -233,4 +233,21 @@ def resetPassword(request):   # step 3 for password reset
     return render(request, 'accounts/resetPassword.html')
 
 
+@login_required
+def view_profile(request):
+    return render(request, 'accounts/profile.html', {'user': request.user})
+    
 
+@login_required
+def edit_profile(request):
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully')
+            return redirect('view_profile')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = UserProfileForm(instance=request.user)
+    return render(request, 'accounts/edit_profile.html', {'form': form})
