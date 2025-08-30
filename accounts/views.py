@@ -19,6 +19,9 @@ from django.core.mail import EmailMessage
 
 
 def register(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -58,6 +61,9 @@ def register(request):
 
 
 def login(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    
     if request.method == 'POST':
         email = request.POST['email']
         password = request.POST['password']
@@ -136,6 +142,9 @@ def custom_logout(request):
 
 
 def forgotPassword(request):   # step 1 for password reset
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    
     if request.method == 'POST':
         email = request.POST['email']
         if Account.objects.filter(email=email).exists():
@@ -189,7 +198,10 @@ def forgotPassword(request):   # step 1 for password reset
 
 
 
-def resetpassword_validate(request, uid64, token):   # step 2 for password reset
+def resetpassword_validate(request, uid64, token):# step 2 for password reset
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    
     try:
         uid = urlsafe_base64_decode(uid64).decode()
         user = Account._default_manager.get(pk=uid)
@@ -204,8 +216,12 @@ def resetpassword_validate(request, uid64, token):   # step 2 for password reset
         messages.error(request, 'This link has expired or is invalid.')
         return redirect('login')
 
+#if user not None then show reset password page else do nothing
 
-def resetPassword(request):   # step 3 for password reset
+def resetPassword(request):# step 3 for password reset
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    
     if request.method == 'POST':
         password = request.POST['password']
         confirm_password = request.POST['confirm_password']
@@ -235,7 +251,7 @@ def resetPassword(request):   # step 3 for password reset
 
 @login_required
 def view_profile(request):
-    return render(request, 'accounts/profile.html', {'user': request.user})
+    return render(request, 'accounts/view_profile.html', {'user': request.user})
     
 
 @login_required

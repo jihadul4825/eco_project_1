@@ -12,7 +12,9 @@
 			<!-- <a class="list-group-item" href="#"> Transactions </a> -->
 			<a class="list-group-item" href="#"> Return and refunds </a>
 			<a class="list-group-item" href="{% url 'store' %}">Shop</a>
-			<a href="#" class="list-group-item">View Profile</a>
+			<!-- Replace the single profile link with these two -->
+			<a class="list-group-item" href="{% url 'view_profile' %}">View Profile</a>
+			<a class="list-group-item" href="{% url 'edit_profile' %}">Edit Profile</a>
 		</ul>
 		<br>
 		<a class="btn btn-light btn-block" href="{% url 'logout' %}"> <i class="fa fa-power-off"></i> <span class="text">Log out</span> </a> 
